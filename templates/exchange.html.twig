@@ -1,0 +1,97 @@
+{% extends 'base.html.twig' %}
+
+{% block javascripts %}
+<script>
+	
+	window.addEventListener('load', function () {
+		
+		if ( $('#rates').length > 0 ) {
+
+			$('.rate-diff').each(function () {
+				
+				var $span = $('span', this);
+				var number = Number( $span.text() );
+
+				var numberRounded = number.toFixed(4);
+				$span.text(numberRounded);
+
+				if ( number > 0 ) {
+					$(this).addClass('text-success');
+					$span.prepend('+');
+				}
+				else if ( number < 0 ) {
+					$(this).addClass('text-danger');
+				}
+			})
+		}
+	})
+
+</script>
+{% endblock %}
+
+
+{% block body %}
+
+<div class="container">
+
+	{% if alert_message is defined %}
+	<div class="alert alert-danger">{{ alert_message }}</div>
+	{% endif %}
+
+	<form class="form-inline" method="POST">
+		
+		<div class="mr-1 mr-sm-2 my-3">
+			<input type="date" name="date" class="form-control {{ validation_message is defined ? ' is-invalid' }}" value="{{ last_date }}">
+
+			{% if validation_message is defined %}
+			<span class="invalid-feedback">
+				<strong>{{ validation_message }}</strong>
+			</span>
+			{% endif %}
+		</div>
+		
+		<button class="btn btn-primary my-3">Szukaj</button>
+
+	</form>
+
+	{% if rates is defined %}
+	<div id="rates" class="my-5 mx-auto">
+		
+		<table class="table table-striped">
+			<tr>
+				<th>Data</th>
+				<th>Kurs kupna</th>
+				<th>Kurs sprzedaży</th>
+			</tr>
+
+			{% for rate in rates %}
+			<tr>
+				<td>
+					{{ rate.effectiveDate }} 
+				</td>
+				<td>
+					{{ rate.bid }}
+					{% if not loop.last %}
+					<small class="rate-diff">
+						(<span>{{ rate.bid - rates[loop.index].bid }}</span>)
+					</small>
+					{% endif %}
+				</td>
+				<td>
+					{{ rate.ask }}
+					{% if not loop.last %}
+					<small class="rate-diff">
+						(<span>{{ rate.ask - rates[loop.index].ask }}</span>)
+					</small>
+					{% endif %}
+				</td>
+			</tr>
+			{% endfor %}
+		</table>
+
+	</div>
+	{% endif %}
+
+</div>
+
+{% endblock %}
